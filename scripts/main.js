@@ -12,10 +12,6 @@ attribution.setPrefix('');
 attribution.addAttribution('<a href="https://github.com/andrea-del-sarto/gimmeOSM">gimme OSM Github</a> | <a href="https://www.mapbox.com/about/maps">© Mapbox</a> <a href="http://openstreetmap.org/copyright">© OpenStreetMap</a> | <a href="http://mapbox.com/map-feedback/" class="mapbox-improve-map">Improve this map</a>');
 attribution.addTo(map);
 
-new L.Control.Zoom({
-    position: 'bottomright'
-}).addTo(map);
-
 var osmGeoJSON;
 
 function getOSM(type, id) {
