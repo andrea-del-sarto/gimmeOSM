@@ -1,5 +1,5 @@
 L.mapbox.accessToken = 'pk.eyJ1IjoiYWxscnlkZXIiLCJhIjoidWs5cUFfRSJ9.t8kxvO3nIhCaAl07-4lkNw';
-var map = L.mapbox.map('map', 'mapbox.light', {
+var map = L.mapbox.map('map', 'mapbox.outdoors', {
     center: [6.664608, 36.386719],
     zoom: 2,
     zoomControl: false,
