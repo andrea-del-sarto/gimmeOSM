@@ -1,4 +1,4 @@
-L.mapbox.accessToken = 'pk.eyJ1IjoiYWxscnlkZXIiLCJhIjoidWs5cUFfRSJ9.t8kxvO3nIhCaAl07-4lkNw';
+L.mapbox.accessToken = 'pk.eyJ1IjoiYW5kcmVhMGJhcmJhIiwiYSI6ImNsYnBqdTR1cjAyNGkzcnE3bDNyM29yMnMifQ.YgRRggrXkzyZWs9ILMpkwg';
 var map = L.mapbox.map('map', 'mapbox.light', {
     center: [6.664608, 36.386719],
     zoom: 2,
@@ -8,7 +8,7 @@ var map = L.mapbox.map('map', 'mapbox.light', {
 
 var attribution = L.control.attribution();
 attribution.setPrefix('');
-attribution.addAttribution('<a href="https://github.com/ustroetz/gimmeOSM">gimme OSM Github</a> | <a href="https://www.mapbox.com/about/maps">© Mapbox</a> <a href="http://openstreetmap.org/copyright">© OpenStreetMap</a> | <a href="http://mapbox.com/map-feedback/" class="mapbox-improve-map">Improve this map</a>');
+attribution.addAttribution('<a href="https://github.com/andrea-del-sarto/gimmeOSM">gimme OSM Github</a> | <a href="https://www.mapbox.com/about/maps">© Mapbox</a> <a href="http://openstreetmap.org/copyright">© OpenStreetMap</a> | <a href="http://mapbox.com/map-feedback/" class="mapbox-improve-map">Improve this map</a>');
 attribution.addTo(map);
 
 new L.Control.Zoom({
