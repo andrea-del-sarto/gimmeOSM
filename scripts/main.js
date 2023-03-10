@@ -1,10 +1,19 @@
-L.mapbox.accessToken = 'pk.eyJ1IjoiYW5kcmVhMGJhcmJhIiwiYSI6ImNsZjMxY3NvNDBueW0zeG55bGw2YzR3aDQifQ.h-DNEXZoA9wXfMKFjrrTsg';
-var map = L.mapbox.map('map', 'mapbox.light', {
-    center: [43.564,11.580],
-    zoom: 2,
-    zoomControl: false,
-    attributionControl: false
+
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css' rel='stylesheet' />
+
+
+<div id='map' style='width: 400px; height: 300px;'></div>
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoiYW5kcmVhMGJhcmJhIiwiYSI6ImNsZjMxY3NvNDBueW0zeG55bGw2YzR3aDQifQ.h-DNEXZoA9wXfMKFjrrTsg';
+const map = new mapboxgl.Map({
+    container: 'map', // container ID
+    style: 'mapbox://styles/mapbox/streets-v12', // style URL
+    center: [-74.5, 40], // starting position [lng, lat]
+    zoom: 9, // starting zoom
 });
+</script>
+
 var osmGeoJSON;
 
 function getOSM(type, id) {
