@@ -1,4 +1,4 @@
-L.mapbox.accessToken = 'pk.eyJ1IjoiYW5kcmVhMGJhcmJhIiwiYSI6ImNsYnBqdTR1cjAyNGkzcnE3bDNyM29yMnMifQ.YgRRggrXkzyZWs9ILMpkwg';
+L.mapbox.accessToken = 'pk.eyJ1IjoiYW5kcmVhMGJhcmJhIiwiYSI6ImNsZjMxY3NvNDBueW0zeG55bGw2YzR3aDQifQ.h-DNEXZoA9wXfMKFjrrTsg';
 var map = L.mapbox.map('map', 'mapbox.light', {
     center: [43.564,11.580],
     zoom: 2,
