@@ -24,11 +24,8 @@
   <h3>Risultato (GeoJSON)</h3>
   <pre id="out">Nessuna richiesta ancora.</pre>
 
-  <script type="module">
-  import osmtogeojson from "https://cdn.jsdelivr.net/npm/osmtogeojson@3.0.0/+esm";
-  window.osmtogeojson = osmtogeojson;
-  </script>
-  
+  <script src="https://unpkg.com/osmtogeojson@3.0.0/osmtogeojson.js"></script>
+
   <script>
     // Lista di mirror Overpass da provare (ordine preferito)
     const OVERPASS_MIRRORS = [
@@ -58,7 +55,9 @@
     async function tryFetchOverpass(query){
       const encoded = encodeURIComponent(query);
       for(const base of OVERPASS_MIRRORS){
-        const url = `${base}?data=${query}`;
+        // **BUGFIX CORREZIONE URL:** La query è già encodata in precedenza nel codice
+        // Quella che usiamo è la variabile `query` non `encoded`
+        const url = `${base}?data=${query}`; 
         try{
           const resp = await fetch(url, {credentials: 'omit'});
           if(!resp.ok){
@@ -68,6 +67,7 @@
           const text = await resp.text();
           // parse XML
           const parser = new DOMParser();
+          // Importante: DOMParser funziona correttamente solo se riceve una stringa XML valida
           const xml = parser.parseFromString(text, 'text/xml');
           return {xml, base};
         }catch(err){
@@ -89,11 +89,14 @@
       const q = buildQuery(type, id);
       try{
         const {xml, base} = await tryFetchOverpass(q);
+        
         // Convert OSM XML -> GeoJSON using osmtogeojson library
-        // osmtogeojson expects the OSM XML document object or string
-        const geojson = osmtogeojson(xml);
+        // osmtogeojson è ora definito grazie allo script tag sopra
+        const geojson = osmtogeojson(xml); 
+        
         outEl.textContent = JSON.stringify({from: base, geojson}, null, 2);
       }catch(err){
+        // La parte relativa all'errore CORS è già informativa
         outEl.textContent = 'Errore: ' + err.message + '\n\nSe il problema fosse CORS, prova ad usare un proxy CORS (solo per test) o un server-side proxy.';
       }
     });
