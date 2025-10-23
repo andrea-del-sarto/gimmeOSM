@@ -1,43 +1,112 @@
-<!DOCTYPE html>
-<html>
-
+<!doctype html>
+<html lang="it">
 <head>
-    <meta charset=utf-8 />
-    <title>gimme OSM</title>
-    <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="lib/jquery-1.11.3.min.js"></script>
-    <script src="lib/osmtogeojson.js"></script>
-    <script src="lib/bootstrap.min.js"></script>
-    <script src="lib/FileSaver.min.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>gimmeOSM — fixed</title>
+  <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;margin:20px}label{display:inline-block;width:80px}pre{background:#f6f8fa;padding:10px;border-radius:6px;overflow:auto}</style>
 </head>
-
 <body>
-    <div id='map'></div>
-    <div id='searchbox'>
-        <div class="btn-group" id="type_selector" data-toggle="buttons">
-            <label class="btn btn-default type-btn" data-active-class="off">
-                <input type="radio" class="toggle" value="node" checked autocomplete="off">Node
-            </label>
-            <label class="btn btn-default type-btn" data-active-class="off">
-                <input type="radio" class="toggle" value="way" autocomplete="off">Way
-            </label>
-            <label class="btn btn-default type-btn" data-active-class="off">
-                <input type="radio" class="toggle" value="relation" autocomplete="off">Relation
-            </label>
-        </div>
-        <div class="input-group">
-            <input type="number" id="id_input" class="form-control" placeholder="OSM ID">
-            <div class="input-group-btn">
-                <button id="find_btn" class="btn btn-default" type="button">
-                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-            </div>
-        </div>
-    </div>
-    <script src='scripts/main.js'></script>
-</body>
+  <h1>gimmeOSM — versione aggiornata (fix CORS & Overpass)</h1>
 
+  <p>Inserisci un ID e scegli il tipo (node / way / relation). Questa versione usa <code>overpass-api.de</code> e la libreria <code>osmtogeojson</code> per convertire la risposta OSM (XML) in GeoJSON nel browser evitando errori CORS tipici.</p>
+
+  <div>
+    <label for="type">Tipo</label>
+    <select id="type"><option value="node">node</option><option value="way">way</option><option value="relation">relation</option></select>
+  </div>
+  <div style="margin-top:8px">
+    <label for="id">ID</label>
+    <input id="id" placeholder="es. 1979346339" />
+    <button id="go">Vai</button>
+  </div>
+
+  <h3>Risultato (GeoJSON)</h3>
+  <pre id="out">Nessuna richiesta ancora.</pre>
+
+  <script src="https://unpkg.com/osmtogeojson@3.0.0/dist/osmtogeojson.js"></script>
+  <script>
+    // Lista di mirror Overpass da provare (ordine preferito)
+    const OVERPASS_MIRRORS = [
+      'https://overpass-api.de/api/interpreter',
+      'https://overpass.kumi.systems/api/interpreter',
+      'https://overpass.openstreetmap.fr/api/interpreter'
+    ];
+
+    const outEl = document.getElementById('out');
+    const idEl = document.getElementById('id');
+    const typeEl = document.getElementById('type');
+    const go = document.getElementById('go');
+
+    function buildQuery(type, id){
+      // Overpass QL: ask for the single object (node/way/relation) and its members/geometries
+      // We ask for body and recurse where appropriate to get geometry.
+      if(type === 'node'){
+        return `[out:xml][timeout:25];node(${id});out body;`;
+      }
+      if(type === 'way'){
+        return `[out:xml][timeout:25];way(${id});(._;>;);out body;`;
+      }
+      // relation
+      return `[out:xml][timeout:25];relation(${id});(._;>;);out body;`;
+    }
+
+    async function tryFetchOverpass(query){
+      const encoded = encodeURIComponent(query);
+      for(const base of OVERPASS_MIRRORS){
+        const url = `${base}?data=${query}`;
+        try{
+          const resp = await fetch(url, {credentials: 'omit'});
+          if(!resp.ok){
+            console.warn('Overpass mirror returned not ok', base, resp.status);
+            continue;
+          }
+          const text = await resp.text();
+          // parse XML
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(text, 'text/xml');
+          return {xml, base};
+        }catch(err){
+          console.warn('Error fetching from', base, err);
+          // try next mirror
+        }
+      }
+      throw new Error('All Overpass mirrors failed (network / CORS / rate-limit).');
+    }
+
+    go.addEventListener('click', async ()=>{
+      const id = idEl.value.trim();
+      const type = typeEl.value;
+      if(!/^[0-9]+$/.test(id)){
+        outEl.textContent = 'ID non valido — inserisci solo cifre.';
+        return;
+      }
+      outEl.textContent = 'In esecuzione...';
+      const q = buildQuery(type, id);
+      try{
+        const {xml, base} = await tryFetchOverpass(q);
+        // Convert OSM XML -> GeoJSON using osmtogeojson library
+        // osmtogeojson expects the OSM XML document object or string
+        const geojson = osmtogeojson(xml);
+        outEl.textContent = JSON.stringify({from: base, geojson}, null, 2);
+      }catch(err){
+        outEl.textContent = 'Errore: ' + err.message + '\n\nSe il problema fosse CORS, prova ad usare un proxy CORS (solo per test) o un server-side proxy.';
+      }
+    });
+
+    // support query string params like ?nodeID=1979346339
+    (function runFromQuery(){
+      const urlp = new URLSearchParams(location.search);
+      for(const t of ['node','way','relation']){
+        const key = t + 'ID';
+        if(urlp.has(key)){
+          idEl.value = urlp.get(key);
+          typeEl.value = t;
+          go.click();
+          break;
+        }
+      }
+    })();
+  </script>
+</body>
 </html>
