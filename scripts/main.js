@@ -5,7 +5,7 @@
 
 <div id='map' style='width: 400px; height: 300px;'></div>
 <script>
-mapboxgl.accessToken = 'pk.eyJ1IjoiYW5kcmVhMGJhcmJhIiwiYSI6ImNsZjMxY3NvNDBueW0zeG55bGw2YzR3aDQifQ.h-DNEXZoA9wXfMKFjrrTsg';
+mapboxgl.accessToken = 'pk.eyJ1IjoiYW5kcmVhMGJhcmJhIiwiYSI6ImNtaDN0dWV4ajFmOHU0N3Fwamo5eGoxYTYifQ.cHUOszs_a5izWILMrIEcDg';
 const map = new mapboxgl.Map({
     container: 'map', // container ID
     style: 'mapbox://styles/mapbox/streets-v12', // style URL
