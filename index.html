@@ -24,7 +24,11 @@
   <h3>Risultato (GeoJSON)</h3>
   <pre id="out">Nessuna richiesta ancora.</pre>
 
-  <script src="https://cdn.jsdelivr.net/gh/tyrasd/osmtogeojson@v3.0.0/osmtogeojson.js"></script>
+  <script type="module">
+  import osmtogeojson from "https://cdn.jsdelivr.net/npm/osmtogeojson@3.0.0/+esm";
+  window.osmtogeojson = osmtogeojson;
+  </script>
+  
   <script>
     // Lista di mirror Overpass da provare (ordine preferito)
     const OVERPASS_MIRRORS = [
